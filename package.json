@@ -1,0 +1,13 @@
+{
+  "private": true,
+  "scripts": {
+    "build": "tailwindcss -i ./app/static/css/input.css -o ./app/static/css/app.css --minify && node scripts/vendor.mjs"
+  },
+  "dependencies": {
+    "@tailwindcss/cli": "4.1.14",
+    "tailwindcss": "4.1.14",
+    "wavesurfer.js": "7.11.0",
+    "swagger-ui-dist": "5.29.0"
+  },
+  "type": "module"
+}

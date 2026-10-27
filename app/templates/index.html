@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="app-shell">
+  <aside class="sidebar">
+    <a class="brand" href="/"><span class="brand-mark">&#8779;</span><span>AUDIO LAB<span class="pro-tag">PRO</span></span></a>
+    <div class="workspace-label">PERSONAL WORKSPACE <span>&#183;</span></div>
+    <nav aria-label="Main navigation"><a href="/" class="nav-item {{ 'active' if not history }}"><span>&#9672;</span> Audio studio</a><a href="/history" class="nav-item {{ 'active' if history }}"><span>&#9677;</span> Processing history</a><a href="/docs" class="nav-item" target="_blank" rel="noopener"><span>&#183;</span> API reference &#183;</a></nav>
+    <div class="library-heading">YOUR RECORDINGS <span id="file-count">0</span></div>
+    <div id="library" class="library"><p class="muted small">Your uploaded recordings will appear here.</p></div>
+    <div class="sidebar-bottom"><span class="status-dot"></span> Local workspace<span class="muted small">Audio stays on your server</span></div>
+  </aside>
+  <main>
+    <header class="topbar"><div class="breadcrumb">Workspace <span>/</span> <strong>{{ 'Processing history' if history else 'Audio studio' }}</strong></div><div class="engine-badge"><span class="status-dot"></span><span id="engine-status">Connecting to engine</span></div></header>
+    <div class="page-content">
+      <div class="page-heading"><div><p class="eyebrow">YOUR SOUND, REFINED</p><h1>{{ 'Processing history' if history else 'Audio studio' }}</h1><p class="muted">{{ 'Every recording. Every version. Ready when you are.' if history else 'Analyze, shape, and master your audio in one workspace.' }}</p></div><span class="version-badge">AUDIO LAB / 01</span></div>
+      <section id="upload-zone" class="upload-zone" aria-label="Upload audio">
+        <div class="upload-icon">&#8613;</div><div><h2>Drop your next great track here</h2><p class="muted small">MP3, WAV, FLAC, OGG, M4A / AAC <span>&#183;</span> Up to <span id="upload-limit">250</span> MB</p><p id="upload-status" class="small" role="status"></p></div><label for="upload" class="button secondary">Browse files</label><input id="upload" type="file" accept="audio/*,.mp3,.wav,.flac,.ogg,.m4a,.aac" class="sr-only">
+      </section>
+      <div id="history-view" {% if not history %}hidden{% endif %}><section class="panel"><div class="panel-heading"><h2>All processing jobs</h2><button id="refresh-history" class="text-button">&#183; Refresh</button></div><div id="history-table" class="table-wrap"></div></section></div>
+      <div id="studio-view" {% if history %}hidden{% endif %}>
+        <div id="empty-state" class="empty-state"><span>&#9835;</span><h2>A fresh canvas for your sound</h2><p class="muted">Upload a recording to see its waveform, inspect its acoustics, and start shaping a new version.</p></div>
+        <div id="workspace" hidden>
+          <section class="panel waveform-panel">
+            <div class="panel-heading"><div class="track-heading"><span class="audio-icon">&#9835;</span><div><h2 id="track-name">Recording</h2><p id="track-subtitle" class="muted small"></p></div></div><div class="wave-actions"><span class="pill">ORIGINAL</span><label class="zoom-label">Zoom<input id="zoom" type="range" min="0" max="100" value="0"></label><button id="delete-audio" class="icon-button" aria-label="Delete recording">&times;</button></div></div>
+            <div id="original-wave" class="waveform" aria-label="Original waveform"></div>
+            <audio id="original-audio" preload="metadata"></audio>
+            <div class="transport"><button id="play" class="play-button" aria-label="Play or pause">&#9654;</button><span id="play-time" class="time-label">0:00 / 0:00</span><div class="ab-switch" aria-label="Playback source"><button id="source-a" class="selected" aria-pressed="true">A <span>Original</span></button><button id="source-b" disabled aria-pressed="false">B <span>Processed</span></button></div><label class="volume-label">Volume<input id="volume" type="range" min="0" max="1" step="0.01" value="0.8"></label><label class="check-label"><input id="loop" type="checkbox"> Loop selection</label></div>
+            <div class="region-controls"><span class="muted small">SELECTION</span><label>Start <input id="preview-start" type="number" min="0" step="0.1" value="0"> s</label><label>Length <select id="preview-duration"><option>10</option><option selected>20</option><option>30</option><option>60</option></select> s</label><span class="muted small">Drag on the waveform to select a region.</span></div>
+          </section>
+          <div class="studio-grid">
+            <div class="controls-column">
+              <section class="panel processing-panel">
+                <div class="panel-heading"><h2><span class="section-symbol">&#8769;</span> Shape your sound</h2><button id="reset" class="text-button">&#183; Reset</button></div>
+                <div class="mode-switch" role="group" aria-label="Processing mode"><button id="preserve-mode" class="selected"><strong>Preserve</strong><span>Subtle, faithful refinement</span></button><button id="creative-mode"><strong>Creative</strong><span>Explore a different direction</span></button></div>
+                <div class="preset-row"><label for="preset-select">START WITH A PRESET</label><div class="preset-select-row"><select id="preset-select"><option value="">Neutral settings</option></select><button id="save-preset" class="secondary">+ Save</button><button id="rename-preset" class="icon-button" aria-label="Rename selected custom preset" disabled>&#9998;</button><button id="delete-preset" class="icon-button" aria-label="Delete selected custom preset" disabled>&times;</button></div></div>
+                <div id="effect-controls" class="effect-controls"></div>
+              </section>
+              <section class="panel preview-panel"><div class="panel-heading"><h2>Listen before you commit</h2><span class="pill subtle">PREVIEW</span></div><p class="muted small">Render the selected region with your current settings. Adjustments take effect when you regenerate.</p><div id="processed-wave" class="processed-wave" aria-label="Processed waveform"><p class="muted small" id="preview-empty">Your processed waveform will appear here.</p></div><audio id="processed-audio" preload="metadata"></audio><div class="transport"><button id="preview-play" class="secondary" disabled aria-label="Play generated preview" aria-pressed="false">&#9654; Play preview</button><span id="preview-time" class="time-label" role="timer" aria-label="Preview playback position">0:00 / 0:00</span></div><div class="preview-footer"><span id="preview-description" class="muted small">20-second preview &#183; current export encoding</span><button id="generate-preview" class="secondary">&#9655; Generate preview</button></div><div id="comparison" hidden></div></section>
+            </div>
+            <div class="analysis-column">
+              <section class="panel analysis-panel"><div class="panel-heading"><h2>Audio insights</h2><span class="live-label"><span class="status-dot"></span> ANALYSIS</span></div><div id="analysis-loading" class="muted small">Waiting for analysis&#183;</div><div id="metrics" class="metrics"></div><details><summary>Technical & acoustic details</summary><pre id="analysis-details"></pre></details><a href="#measurement-notes" id="measurement-link" class="small text-link">How these measurements work &#183;</a></section>
+              <section class="panel fingerprint-panel"><div class="panel-heading"><h2>Acoustic fingerprint</h2><span class="section-symbol">&#183;</span></div><div id="fingerprint-status" class="muted small">Pending local analysis</div><div id="fingerprint-hash" class="hash"></div><details><summary>Inspect fingerprint data</summary><pre id="fingerprint-details"></pre></details><p class="notice">Chromaprint identifies local acoustic patterns. These metrics do not predict Content ID recognition or verify music rights.</p></section>
+              <section class="panel export-panel"><div class="panel-heading"><h2>Export your version</h2><span>&#183;</span></div><label>Format<select id="export-format"><option value="wav24">WAV &#183; PCM 24-bit</option><option value="wav16">WAV &#183; PCM 16-bit</option><option value="flac">FLAC &#183; lossless</option><option value="mp3">MP3</option></select></label><div class="export-grid"><label>Sample rate<select id="sample-rate"><option value="32000">32 kHz</option><option value="44100">44.1 kHz</option><option selected value="48000">48 kHz</option><option value="88200">88.2 kHz</option><option value="96000">96 kHz</option></select></label><label id="bitrate-label" hidden>Bitrate<select id="bitrate"><option>128</option><option>192</option><option>256</option><option selected>320</option></select> kbps</label></div><p class="muted small">Exporting at a higher resolution does not improve source quality.</p><button id="process-full" class="primary full">&#8599; Process full recording</button><a id="download" class="button secondary full" hidden>&#8595; Download export</a></section>
+            </div>
+          </div>
+          <section class="panel jobs-panel"><div class="panel-heading"><h2>Versions & activity</h2><span class="muted small">Your original stays intact</span></div><div id="jobs"></div></section>
+        </div>
+      </div>
+      <details id="measurement-notes" class="measurement-notes"><summary>Measurement methods & technical limits</summary><p>Integrated LUFS, true peak and loudness range come from FFmpeg loudnorm (EBU R128 / BS.1770). RMS, sample peak, full-scale sample count, stereo energy balance and mean-centered stereo correlation use all decoded samples. Silence detection uses &minus;50 dB for at least 0.5 seconds. Approximate dynamic range is the 95th-to-10th percentile ratio of active block RMS values, not a standardized DR score. Spectral metrics use Hann-windowed 2,048-sample FFTs sampled from evenly spaced blocks. Fingerprints cover at most the first 120 seconds. Mono balance and stereo correlation are unavailable. Silent signals may have no finite loudness or correlation. Reverb is a short multi-tap echo approximation. Analysis and fingerprints cannot predict proprietary copyright recognition.</p></details>
+      <footer><span>AUDIO LAB PRO</span><span>Made for the details you can hear.</span><span>Local processing &#183; Open tools</span></footer>
+    </div>
+  </main>
+</div>
+{% endblock %}

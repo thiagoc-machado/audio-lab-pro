@@ -1,0 +1,12 @@
+.env
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+node_modules/
+storage/
+app/static/vendor/
+app/static/css/app.css
+*.egg-info/
+.coverage

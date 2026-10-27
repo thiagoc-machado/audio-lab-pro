@@ -1,0 +1,28 @@
+[project]
+name = "audio-lab-pro"
+version = "1.0.0"
+description = "Self-hosted audio analysis and processing workbench"
+requires-python = ">=3.12"
+dependencies = [
+  "fastapi>=0.115,<1", "uvicorn[standard]>=0.34,<1", "pydantic-settings>=2.7,<3",
+  "sqlalchemy>=2.0,<3", "psycopg[binary]>=3.2,<4", "alembic>=1.14,<2",
+  "celery[redis]>=5.5,<6", "redis>=5,<7", "jinja2>=3.1,<4",
+  "python-multipart>=0.0.20,<1", "numpy>=2.2,<3", "soundfile>=0.13,<1",
+]
+[project.optional-dependencies]
+test = ["pytest>=8.3,<10", "httpx>=0.28,<1", "ruff>=0.11,<1"]
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+cache_dir = "/tmp/audio-lab-pytest-cache"
+markers = ["integration: real audio tools and database"]
+[tool.ruff]
+line-length = 110
+target-version = "py312"
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F"]
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+[tool.setuptools.packages.find]
+include = ["app*"]

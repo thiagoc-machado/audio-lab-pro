@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#0c0e14">
+  <title>Audio Lab Pro · Your sound, refined</title>
+  <link rel="stylesheet" href="/static/css/app.css">
+  <script type="module" src="/static/js/app.js"></script>
+</head>
+<body data-history="{{ 'true' if history else 'false' }}">
+{% block content %}{% endblock %}
+<div id="toast" role="status" aria-live="polite" hidden></div>
+<dialog id="name-dialog"><form method="dialog"><h2 id="dialog-title">Save preset</h2><label>Preset name<input id="preset-name" maxlength="100" required></label><div class="dialog-actions"><button value="cancel" formnovalidate>Cancel</button><button class="primary" value="save">Save</button></div></form></dialog>
+</body>
+</html>

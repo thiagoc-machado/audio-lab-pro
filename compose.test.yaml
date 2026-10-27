@@ -1,0 +1,15 @@
+services:
+  browser-tests:
+    image: mcr.microsoft.com/playwright:v1.59.1-noble
+    profiles: [test]
+    network_mode: service:web
+    shm_size: 1gb
+    volumes:
+      - .:/work
+      - browser_dependencies:/tmp/browser
+    depends_on:
+      web: {condition: service_healthy}
+      worker: {condition: service_healthy}
+    command: [sh, -c, 'npm install --prefix /tmp/browser --no-save --no-audit --no-fund playwright@1.59.1 && node /work/scripts/browser.cjs']
+volumes:
+  browser_dependencies:
